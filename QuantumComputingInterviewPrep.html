@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Computing Interview Prep</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { margin: 0.5em 0; }
+        .concept-card { transition: all 0.3s ease-in-out; }
+        .concept-card .details { display: none; }
+        .concept-card.active { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .concept-card.active .details { display: block; }
+        .nav-link { transition: all 0.2s ease; border-left: 3px solid transparent; }
+        .nav-link.active { border-left-color: #4f46e5; background-color: #eef2ff; color: #4f46e5; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <!-- Chosen Palette: Quantum Calm (Slate, Indigo, White) -->
+    <!-- Application Structure Plan: The application is designed as a single-page interactive revision dashboard with a fixed sidebar for navigation. This structure was chosen over a linear document to allow the user to quickly jump between topics—Quantum Mechanics, Quantum Computing, and Hardware—which is crucial for last-minute interview preparation. The main content area uses interactive 'concept cards.' Clicking a card expands to show detailed information, equations, and diagrams. This approach breaks down complex information into manageable chunks, preventing overwhelm and facilitating focused revision. The goal is a task-oriented flow: select a high-level topic, drill down into specific concepts, and review key details efficiently. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Qubit states (|0>, |1>, superposition). Goal: Inform/Explain. Viz/Presentation: A dynamic bar chart representing the probabilities of measuring |0> or |1>. Interaction: A slider to change the state vector α and β coefficients, which updates the chart in real-time. Justification: Provides a simple, intuitive visual for the abstract concept of superposition. Library: Chart.js (Canvas).
+        - Report Info: Quantum Logic Gates (Hadamard, CNOT). Goal: Organize/Explain. Viz/Presentation: Interactive diagrams built with HTML divs and CSS. Interaction: Hovering over a gate symbol reveals its matrix representation and a short description. Justification: More effective than static text for understanding quantum circuits. Library/Method: HTML/CSS/JS.
+        - Report Info: Comparison of different qubit hardware platforms. Goal: Compare. Viz/Presentation: An interactive horizontal bar chart. Interaction: Buttons to sort the chart by metrics like 'Coherence Time' or 'Gate Fidelity'. Justification: Allows quick comparison of key hardware trade-offs. Library: Chart.js (Canvas).
+        - Report Info: Key equations (Schrödinger, etc.). Goal: Inform. Viz/Presentation: Presented in formatted text blocks with togglable annotations. Interaction: Clicking terms in an equation reveals a plain-language explanation. Justification: Deconstructs complex math for easier revision. Library/Method: HTML/CSS/JS (using KaTeX for rendering).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-white shadow-md p-4 sticky top-0 h-screen hidden lg:flex flex-col">
+            <h1 class="text-2xl font-bold text-indigo-600 mb-8">Quantum Prep</h1>
+            <nav id="desktop-nav" class="flex flex-col space-y-2">
+                <a href="#qm" class="nav-link p-3 rounded-md font-medium text-slate-700 hover:bg-slate-100">QM Fundamentals</a>
+                <a href="#qc" class="nav-link p-3 rounded-md font-medium text-slate-700 hover:bg-slate-100">Quantum Computing</a>
+                <a href="#hardware" class="nav-link p-3 rounded-md font-medium text-slate-700 hover:bg-slate-100">Hardware & Tools</a>
+                <a href="#algorithms" class="nav-link p-3 rounded-md font-medium text-slate-700 hover:bg-slate-100">Algorithms & QML</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-4 sm:p-6 md:p-10">
+            <header class="flex justify-between items-center mb-8">
+                 <h2 class="text-3xl font-bold text-slate-900">Revision Dashboard</h2>
+                 <div class="lg:hidden">
+                    <select id="mobile-nav" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2">
+                        <option value="#qm">QM Fundamentals</option>
+                        <option value="#qc">Quantum Computing</option>
+                        <option value="#hardware">Hardware & Tools</option>
+                        <option value="#algorithms">Algorithms & QML</option>
+                    </select>
+                </div>
+            </header>
+
+            <div id="content-sections" class="space-y-12">
+                <section id="qm" class="space-y-6">
+                    <h3 class="text-2xl font-semibold border-b-2 border-indigo-200 pb-2">Quantum Mechanics Fundamentals</h3>
+                    <p class="text-slate-600">This section covers the foundational principles of quantum mechanics, from the historical experiments that revealed the breakdown of classical physics to the core mathematical framework used to describe quantum systems. Understanding these concepts is essential for grasping how quantum computers work at a fundamental level.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="qm-cards"></div>
+                </section>
+
+                <section id="qc" class="space-y-6">
+                    <h3 class="text-2xl font-semibold border-b-2 border-indigo-200 pb-2">Quantum Computing Core Concepts</h3>
+                    <p class="text-slate-600">Here, we transition from pure theory to computation. This section introduces the building blocks of quantum computers: the qubit and the quantum logic gates. We'll explore the unique properties of superposition and entanglement that give quantum computers their power, and visualize how these concepts are represented.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="qc-cards"></div>
+                </section>
+
+                <section id="hardware" class="space-y-6">
+                    <h3 class="text-2xl font-semibold border-b-2 border-indigo-200 pb-2">Quantum Hardware & Tools</h3>
+                    <p class="text-slate-600">A central topic for your role. This section provides an overview of the physical systems used to build qubits. We compare different hardware modalities, discuss the critical challenges of coherence and quantum error correction, and touch upon the classical hardware and software tools required to control and measure these delicate quantum systems.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="hardware-cards"></div>
+                </section>
+
+                <section id="algorithms" class="space-y-6">
+                    <h3 class="text-2xl font-semibold border-b-2 border-indigo-200 pb-2">Quantum Algorithms & QML</h3>
+                     <p class="text-slate-600">Finally, we explore how to use quantum computers. This section outlines famous quantum algorithms that promise speedups over their classical counterparts. We'll also look at the emerging field of Quantum Machine Learning (QML), a key application area for near-term quantum devices and a focus of current research.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="algorithms-cards"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const data = {
+            qm: [
+                { title: 'Black-Body Radiation & Planck\'s Hypothesis', content: `Classical physics (Rayleigh-Jeans law) failed to explain the radiation emitted by a perfect absorber, predicting infinite energy at high frequencies (the "ultraviolet catastrophe"). In 1900, Max Planck resolved this by postulating that energy is quantized,
