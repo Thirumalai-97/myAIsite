@@ -1,167 +1,53 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Link Hub — Blank Template</title>
-  <meta name="description" content="Single-page link hub template (Linktree-like). Add your links in the HTML or via the Add Link form." />
-  <style>
-    :root{
-      --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --accent:#7dd3fc;
-      --glass: rgba(255,255,255,0.03);
-      --radius:14px;
-      color-scheme: dark;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
-      background:linear-gradient(180deg,#071022 0%, #07172b 100%);color:#e6eef6;
-      display:flex;align-items:center;justify-content:center;padding:32px;
-    }
-    .container{width:100%;max-width:780px}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-    header .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;color:#022;box-shadow:0 6px 18px rgba(7,16,32,0.6)}
-    h1{font-size:20px;margin:0}
-    p.lead{margin:0;color:var(--muted);font-size:13px}
-
-    .controls{display:flex;gap:12px;align-items:center}
-    .search{background:var(--glass);border:1px solid rgba(255,255,255,0.03);padding:10px 12px;border-radius:10px;min-width:220px;color:inherit}
-    .btn{background:linear-gradient(90deg,#0ea5e9,#60a5fa);border:none;padding:10px 14px;border-radius:10px;color:#012;font-weight:600;cursor:pointer}
-
-    .grid{display:grid;grid-template-columns:1fr;gap:12px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:var(--radius);box-shadow:0 6px 22px rgba(2,8,23,0.6);border:1px solid rgba(255,255,255,0.02)}
-    .card h2{margin:0 0 8px 0;font-size:14px}
-    .links{display:flex;flex-direction:column;gap:8px}
-    .link{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);text-decoration:none;color:inherit}
-    .link .fav{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-weight:700}
-    .muted{color:var(--muted);font-size:13px}
-
-    /* small add-link form */
-    form.add{display:flex;gap:8px;margin-bottom:8px}
-    form.add input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);background:transparent;color:inherit}
-    form.add button{padding:10px 12px;border-radius:8px;border:none;background:linear-gradient(90deg,#7dd3fc,#60a5fa);color:#022}
-
-    footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
-
-    @media(min-width:720px){
-      .grid{grid-template-columns:repeat(2,1fr)}
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Technical Blog</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="brand">
-        <div class="logo">LH</div>
-        <div>
-          <h1>Link Hub — Blank Template</h1>
-          <p class="lead">A single page to house all your external links. Edit the HTML or use the form below.</p>
-        </div>
-      </div>
-      <div class="controls">
-        <input id="search" class="search" placeholder="Search links..." aria-label="search links" />
-        <button id="clearBtn" class="btn">Clear</button>
-      </div>
-    </header>
 
-    <main class="grid" id="mainGrid">
-      <!-- Card: Links (default / primary) -->
-      <section class="card" id="linksCard">
-        <h2>All Links</h2>
+    <div class="container">
+        <header class="site-header">
+            <h1><a href="/">My Technical Blog</a></h1>
+            <p>A blog about technology and science</p>
+        </header>
 
-        <!-- Add Link form (optional) -->
-        <form id="addForm" class="add" onsubmit="return false;">
-          <input id="titleInput" placeholder="Link title (e.g. Portfolio)" />
-          <input id="urlInput" placeholder="https://example.com" />
-          <button id="addBtn">Add</button>
-        </form>
+        <main class="main-content">
+            <h2>Blog Posts</h2>
+            
+            <article class="post">
+                <h3><a>Quantum Computing Interview Prep</a></h3>
+                <p class="post-meta">2025</p>
+                <p>Description</p>
+                <a href="sites/QuantumComputingInterviewPrep.html" target="_blank" class="read-more">Read more...</a>
+            </article>
 
-        <div class="links" id="linksList">
-          <!--
-            Placeholder for links. This template intentionally starts empty.
-            Example entry (commented out):
-            <a class="link" href="https://example.com" target="_blank">
-              <div class="fav">P</div>
-              <div>
-                <div>Portfolio</div>
-                <div class="muted">example.com</div>
-              </div>
-            </a>
-          -->
-        </div>
-        <p class="muted">Tip: You can add links using the form above or paste static <code>&lt;a&gt;</code> blocks directly in the HTML.</p>
-      </section>
+            <!-- <article class="post">
+                <h3><a href="#">Another Interesting Topic</a></h3>
+                <p class="post-meta">Published on: October 19, 2025</p>
+                <p>This is a second post. It discusses another topic in detail. The layout is clean and simple, focusing on readability.</p>
+                <a href="#" class="read-more">Read more...</a>
+            </article> -->
+            
+        </main>
 
-      <!-- Optional: Categories / Socials -->
-      <section class="card" id="metaCard">
-        <h2>Profile / Notes</h2>
-        <div class="muted">Add a short bio, contact email, or social links here:</div>
-        <div style="height:12px"></div>
-        <div class="muted">Bio: —</div>
-        <div style="height:12px"></div>
-        <div class="muted">Email: —</div>
-      </section>
-    </main>
+        <aside class="sidebar">
+            <h3>Tools</h3>
+            <ul>
+                <!-- <li><a href="#">My First Tool</a></li>
+                <li><a href="#">Another Cool App</a></li> -->
+            </ul>
 
-    <footer>
-      This is a blank template. Replace the logo, text and colors to match your brand.
-    </footer>
-  </div>
+            <h3>About</h3>
+            <p>This is a short bio about me, the author of this blog.</p>
+        </aside>
 
-  <script>
-    // Minimal JS: add, search, clear, and persist to localStorage (optional)
-    const addBtn = document.getElementById('addBtn');
-    const titleInput = document.getElementById('titleInput');
-    const urlInput = document.getElementById('urlInput');
-    const linksList = document.getElementById('linksList');
-    const search = document.getElementById('search');
-    const clearBtn = document.getElementById('clearBtn');
+        <footer class="site-footer">
+            <p>&copy; 2025 Thirumalai M. All rights reserved.</p>
+        </footer>
+    </div>
 
-    const STORAGE_KEY = 'linkhub_links_v1';
-
-    function loadLinks(){
-      try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){return[]}
-    }
-    let links = loadLinks();
-
-    function saveLinks(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(links)); }
-
-    function render(filter=''){
-      linksList.innerHTML = '';
-      const q = filter.trim().toLowerCase();
-      links.filter(l=> (l.title+ ' ' + l.url).toLowerCase().includes(q)).forEach(l=>{
-        const a = document.createElement('a');
-        a.className = 'link'; a.href = l.url; a.target = '_blank';
-        a.innerHTML = `<div class="fav">${escapeHTML(l.title.charAt(0) || '•')}</div>
-                       <div><div>${escapeHTML(l.title)}</div><div class="muted">${escapeHTML(stripProtocol(l.url))}</div></div>`;
-        linksList.appendChild(a);
-      });
-      if(!linksList.firstChild){
-        linksList.innerHTML = '<div class="muted">No links added yet. Use the form above.</div>';
-      }
-    }
-
-    function addLink(title, url){
-      if(!title||!url) return;
-      if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
-      links.unshift({title, url}); saveLinks(); render(search.value);
-      titleInput.value = ''; urlInput.value = ''; titleInput.focus();
-    }
-
-    addBtn.addEventListener('click', ()=> addLink(titleInput.value.trim(), urlInput.value.trim()));
-    urlInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') addLink(titleInput.value.trim(), urlInput.value.trim()); });
-    titleInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') addLink(titleInput.value.trim(), urlInput.value.trim()); });
-
-    search.addEventListener('input', (e)=> render(e.target.value));
-    clearBtn.addEventListener('click', ()=>{ localStorage.removeItem(STORAGE_KEY); links=[]; render(); });
-
-    function stripProtocol(u){ return u.replace(/^https?:\/\//i,'').replace(/\/$/,''); }
-    function escapeHTML(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])); }
-
-    // initial render
-    render();
-  </script>
 </body>
 </html>

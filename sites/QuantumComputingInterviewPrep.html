@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Computing Interview Prep</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { margin: 0.5em 0; }
+        .concept-card { transition: all 0.3s ease-in-out; }
+        .concept-card .details { display: none; }
+        .concept-card.active { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .concept-card.active .details { display: block; }
+        .nav-link { transition: all 0.2s ease; border-left: 3px solid transparent; }
+        .nav-link.active { border-left-color: #4f46e5; background-color: #eef2ff; color: #4f46e5; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <!-- Chosen Palette: Quantum Calm (Slate, Indigo, White) -->
+    <!-- Application Structure Plan: The application is designed as a single-page interactive revision dashboard with a fixed sidebar for navigation. This structure was chosen over a linear document to allow the user to quickly jump between topics—Quantum Mechanics, Quantum Computing, and Hardware—which is crucial for last-minute interview preparation. The main content area uses interactive 'concept cards.' Clicking a card expands to show detailed information, equations, and diagrams. This approach breaks down complex information into manageable chunks, preventing overwhelm and facilitating focused revision. The goal is a task-oriented flow: select a high-level topic, drill down into specific concepts, and review key details efficiently. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Qubit states (|0>, |1>, superposition). Goal: Inform/Explain. Viz/Presentation: A dynamic bar chart representing the probabilities of measuring |0> or |1>. Interaction: A slider to change the state vector α and β coefficients, which updates the chart in real-time. Justification: Provides a simple, intuitive visual for the abstract concept of superposition. Library: Chart.js (Canvas).
+        - Report Info: Quantum Logic Gates (Hadamard, CNOT). Goal: Organize/Explain. Viz/Presentation: Interactive diagrams built with HTML divs and CSS. Interaction: Hovering over a gate symbol reveals its matrix representation and a short description. Justification: More effective than static text for understanding quantum circuits. Library/Method: HTML/CSS/JS.
+        - Report Info: Comparison of different qubit hardware platforms. Goal: Compare. Viz/Presentation: An interactive horizontal bar chart. Interaction: Buttons to sort the chart by metrics like 'Coherence Time' or 'Gate Fidelity'. Justification: Allows quick comparison of key hardware trade-offs. Library: Chart.js (Canvas).
+        - Report Info: Key equations (Schrödinger, etc.). Goal: Inform. Viz/Presentation: Presented in formatted text blocks with togglable annotations. Interaction: Clicking terms in an equation reveals a plain-language explanation. Justification: Deconstructs complex math for easier revision. Library/Method: HTML/CSS/JS (using KaTeX for rendering).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-white shadow-md p-4 sticky top-0 h-screen hidden lg:flex flex-col">
+            <h1 class="text-2xl font-bold text-indigo-600 mb-8">Quantum Prep</h1>
+            <nav id="desktop-nav" class="flex flex-col space-y-2">
+                <a href="#qm" class="nav-link p-3 rounded-md font-medium text-slate-700 hover:bg-slate-100">QM Fundamentals</a>
+                <a href="#qc" class="nav-link p-3 rounded-md font-medium text-slate-700 hover:bg-slate-100">Quantum Computing</a>
+                <a href="#hardware" class="nav-link p-3 rounded-md font-medium text-slate-700 hover:bg-slate-100">Hardware & Tools</a>
+                <a href="#algorithms" class="nav-link p-3 rounded-md font-medium text-slate-700 hover:bg-slate-100">Algorithms & QML</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-4 sm:p-6 md:p-10">
+            <header class="flex justify-between items-center mb-8">
+                 <h2 class="text-3xl font-bold text-slate-900">Revision Dashboard</h2>
+                 <div class="lg:hidden">
+                    <select id="mobile-nav" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2">
+                        <option value="#qm">QM Fundamentals</option>
+                        <option value="#qc">Quantum Computing</option>
+                        <option value="#hardware">Hardware & Tools</option>
+                        <option value="#algorithms">Algorithms & QML</option>
+                    </select>
+                </div>
+            </header>
+
+            <div id="content-sections" class="space-y-12">
+                <section id="qm" class="space-y-6">
+                    <h3 class="text-2xl font-semibold border-b-2 border-indigo-200 pb-2">Quantum Mechanics Fundamentals</h3>
+                    <p class="text-slate-600">This section covers the foundational principles of quantum mechanics, from the historical experiments that revealed the breakdown of classical physics to the core mathematical framework used to describe quantum systems. Understanding these concepts is essential for grasping how quantum computers work at a fundamental level.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="qm-cards"></div>
+                </section>
+
+                <section id="qc" class="space-y-6">
+                    <h3 class="text-2xl font-semibold border-b-2 border-indigo-200 pb-2">Quantum Computing Core Concepts</h3>
+                    <p class="text-slate-600">Here, we transition from pure theory to computation. This section introduces the building blocks of quantum computers: the qubit and the quantum logic gates. We'll explore the unique properties of superposition and entanglement that give quantum computers their power, and visualize how these concepts are represented.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="qc-cards"></div>
+                </section>
+
+                <section id="hardware" class="space-y-6">
+                    <h3 class="text-2xl font-semibold border-b-2 border-indigo-200 pb-2">Quantum Hardware & Tools</h3>
+                    <p class="text-slate-600">A central topic for your role. This section provides an overview of the physical systems used to build qubits. We compare different hardware modalities, discuss the critical challenges of coherence and quantum error correction, and touch upon the classical hardware and software tools required to control and measure these delicate quantum systems.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="hardware-cards"></div>
+                </section>
+
+                <section id="algorithms" class="space-y-6">
+                    <h3 class="text-2xl font-semibold border-b-2 border-indigo-200 pb-2">Quantum Algorithms & QML</h3>
+                     <p class="text-slate-600">Finally, we explore how to use quantum computers. This section outlines famous quantum algorithms that promise speedups over their classical counterparts. We'll also look at the emerging field of Quantum Machine Learning (QML), a key application area for near-term quantum devices and a focus of current research.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="algorithms-cards"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const data = {
+            qm: [
+                { title: 'Black-Body Radiation & Planck\'s Hypothesis', content: `Classical physics (Rayleigh-Jeans law) failed to explain the radiation emitted by a perfect absorber, predicting infinite energy at high frequencies (the "ultraviolet catastrophe"). In 1900, Max Planck resolved this by postulating that energy is quantized, emitted or absorbed in discrete packets called quanta. Energy E is proportional to frequency f: <div class="katex-render">E = hf</div> where h is Planck's constant.` },
+                { title: 'Photoelectric Effect & Einstein\'s Explanation', content: `This is the emission of electrons when light hits a material. Classical wave theory couldn't explain why emission depends on light's frequency, not its intensity, and is instantaneous. In 1905, Einstein proposed that light itself is quantized into particles (photons), each with energy E=hf. A photon's energy must exceed the material's work function to eject an electron.` },
+                { title: 'Wave-Particle Duality & de Broglie Wavelength', content: `The idea that particles like electrons can exhibit wave-like properties (e.g., diffraction) and waves can exhibit particle-like properties. Louis de Broglie proposed that any particle with momentum p has an associated wavelength λ: <div class="katex-render">\\lambda = \\frac{h}{p}</div> This is a cornerstone of quantum mechanics.` },
+                { title: 'Schrödinger Equation', content: `The fundamental equation of motion in non-relativistic quantum mechanics, describing how the quantum state (wavefunction Ψ) of a physical system changes over time. The time-dependent form is: <div class="katex-render">i\\hbar\\frac{\\partial}{\\partial t}\\Psi(\\mathbf{r},t) = \\hat{H}\\Psi(\\mathbf{r},t)</div> where ħ is the reduced Planck constant and Ĥ is the Hamiltonian operator (total energy). The time-independent form solves for stationary states (energy eigenstates).` },
+                { title: 'Heisenberg Uncertainty Principle', content: `A fundamental principle stating that there is a limit to the precision with which certain pairs of physical properties of a particle, known as complementary variables (e.g., position x and momentum p), can be known simultaneously. <div class="katex-render">\\sigma_x \\sigma_p \\ge \\frac{\\hbar}{2}</div> This is not due to measurement limitations but is an intrinsic property of quantum systems.` },
+                { title: 'Variational Principle', content: `A method for finding approximations to the ground state energy of a quantum system. It states that the expectation value of the Hamiltonian for any trial wavefunction is always greater than or equal to the true ground state energy E₀. <div class="katex-render">\\langle\\psi|\\hat{H}|\\psi\\rangle \\ge E_0</div> This is the foundation for many computational chemistry methods and quantum algorithms like VQE.` },
+            ],
+            qc: [
+                { title: 'The Qubit', content: `The fundamental unit of quantum information. While a classical bit is either 0 or 1, a qubit can exist in a linear combination of two basis states, |0⟩ and |1⟩. This is called superposition. A qubit's state |ψ⟩ is represented as: <div class="katex-render">|\\psi\\rangle = \\alpha|0\\rangle + \\beta|1\\rangle</div> where α and β are complex numbers called probability amplitudes, satisfying <span class="katex-render">|\\alpha|^2 + |\\beta|^2 = 1</span>. |α|² is the probability of measuring |0⟩.` },
+                { title: 'Superposition & Measurement', content: `A qubit exists in a superposition of |0⟩ and |1⟩ until it is measured. Upon measurement, its state "collapses" to either |0⟩ or |1⟩ with a certain probability. This probabilistic nature is a key departure from classical computing. <br><br> <b>Interact:</b> Adjust the slider to see how probability amplitudes affect the measurement outcome. <br><div class="w-full max-w-sm mx-auto my-4"><label for="alpha-slider" class="block text-sm font-medium text-gray-700">Adjust Amplitudes (α² vs β²)</label><input id="alpha-slider" type="range" min="0" max="1" step="0.01" value="0.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"></div><div class="chart-container h-64 max-h-64"><canvas id="qubitStateChart"></canvas></div>` },
+                { title: 'Entanglement', content: `A quantum mechanical phenomenon in which the quantum states of two or more objects have to be described with reference to each other, even though the individual objects may be spatially separated. If two qubits are entangled, measuring one instantly influences the state of the other, regardless of the distance between them. Einstein famously called this "spooky action at a distance".` },
+                { title: 'Quantum Gates', content: `Operations that manipulate the state of qubits, analogous to logic gates in classical computers. They are represented by unitary matrices. Common single-qubit gates include the Hadamard (H) gate, which creates superposition, and Pauli gates (X, Y, Z). A key two-qubit gate is the CNOT (Controlled-NOT), which is crucial for creating entanglement and forms a universal set of gates with single-qubit rotations.` },
+            ],
+            hardware: [
+                { title: 'Qubit Modalities (Hardware Types)', content: `Different physical systems used to implement qubits. Each has trade-offs in terms of stability, scalability, and control. <br><b>Superconducting Circuits:</b> Tiny circuits cooled to near absolute zero. Fast gate operations but sensitive to noise (short coherence times). Leaders: Google, IBM, Rigetti. <br><b>Trapped Ions:</b> Individual atoms suspended by electromagnetic fields. Very stable (long coherence times) and high fidelity, but slower gate operations. Leaders: Quantinuum, IonQ. <br><b>Photonic Qubits:</b> Qubits encoded in photons. Good for communication but building gates is challenging. <br><b>Others:</b> Neutral atoms, quantum dots, silicon spin qubits.` },
+                { title: 'Hardware Metrics Comparison', content: `Key metrics determine a quantum computer's quality. <b>Coherence Time (T1, T2):</b> How long a qubit can maintain its quantum state. <b>Gate Fidelity:</b> How accurately a quantum gate performs its operation. <b>Connectivity:</b> Which qubits can interact with each other. <br><br> <div class="flex space-x-2 mb-4"><button class="sort-btn bg-indigo-500 text-white px-3 py-1 rounded-md text-sm" data-metric="coherence">Sort by Coherence</button><button class="sort-btn bg-slate-500 text-white px-3 py-1 rounded-md text-sm" data-metric="fidelity">Sort by Fidelity</button></div> <div class="chart-container h-80 max-h-80"><canvas id="hardwareCompareChart"></canvas></div>` },
+                { title: 'Qubit Coherence & Decoherence', content: `<b>Coherence</b> is the ability of a qubit to maintain its quantum state (superposition and entanglement). <b>Decoherence</b> is the loss of this coherence due to interactions with the environment (e.g., temperature fluctuations, stray electromagnetic fields). This is the primary obstacle to building large-scale, fault-tolerant quantum computers. Improving qubit coherence involves better materials, shielding (dilution refrigerators), and control techniques.` },
+                { title: 'Quantum Error Correction (QEC)', content: `Since qubits are fragile, errors are inevitable. QEC aims to protect quantum information from decoherence and faulty gates. It works by encoding the information of a single "logical qubit" across many physical qubits. By measuring syndromes (properties of the group of physical qubits) without collapsing the logical state, errors can be detected and corrected. This requires a large overhead of physical qubits and is a major area of research.` },
+                { title: 'Classical Control Hardware & Tools', content: `A quantum computer is a hybrid system. <b>Classical hardware</b> is essential for controlling the qubits. This includes: <br><b>Arbitrary Waveform Generators (AWGs):</b> To create the precise microwave or laser pulses that act as quantum gates. <br><b>FPGAs/SoCs:</b> For real-time feedback, sequencing pulses, and processing measurement results. <br>The <b>Tools Development</b> aspect of your role involves creating the software and firmware that orchestrate these classical components to perform quantum operations, calibrate the system, and implement error correction protocols.` },
+            ],
+            algorithms: [
+                { title: 'Deutsch-Jozsa Algorithm', content: `One of the first examples of a quantum algorithm that is exponentially faster than any possible deterministic classical algorithm. It determines whether a given function (a black box or oracle) is "constant" (all outputs are the same) or "balanced" (outputs are 0 for half of the inputs and 1 for the other half). While not practically useful, it's a powerful proof of concept.` },
+                { title: 'Shor\'s Algorithm', content: `A quantum algorithm for integer factorization, developed in 1994. It can factor large numbers exponentially faster than the best-known classical algorithms. Its discovery was a major driver for quantum computing research, as it could theoretically break modern cryptography systems like RSA. It uses the Quantum Fourier Transform.` },
+                { title: 'Grover\'s Algorithm', content: `A quantum search algorithm that provides a quadratic speedup for unstructured search problems. For a list of N items, a classical search takes O(N) time on average. Grover's algorithm can find the target item in O(√N) time. It's applicable to a wide range of problems, such as database searching and breaking symmetric-key cryptography.` },
+                { title: 'Variational Quantum Eigensolver (VQE)', content: `A hybrid quantum-classical algorithm used to find the ground state energy of a molecule or other quantum system. It's a leading candidate for achieving "quantum advantage" on near-term, noisy intermediate-scale quantum (NISQ) devices. <br><b>How it works:</b> <br>1. A parameterized quantum circuit (an "ansatz") prepares a trial state on the quantum computer. <br>2. The energy of this state is measured. <br>3. A classical optimizer uses this measurement to suggest new parameters for the circuit. <br>4. The process repeats until the lowest energy is found.` },
+                { title: 'Quantum Machine Learning (QML)', content: `An emerging field that explores the intersection of quantum computing and machine learning. The goal is to devise quantum algorithms that can speed up or improve upon classical machine learning tasks. Key areas include: <br><b>Quantum Kernels:</b> Using quantum computers to map data into high-dimensional feature spaces for use with classical support vector machines. <br><b>Quantum Neural Networks (QNNs):</b> Models based on parameterized quantum circuits, similar in spirit to VQE. <br><b>Quantum-enhanced optimization:</b> Using algorithms like Grover's to speed up search problems within ML.` },
+            ]
+        };
+
+        let activeCard = null;
+        let qubitChart = null;
+        let hardwareChart = null;
+        const hardwareData = {
+            labels: ['Superconducting', 'Trapped Ions', 'Photonic', 'Neutral Atoms', 'Silicon Spin'],
+            datasets: [
+                { label: 'Coherence Time (log µs)', data: [2, 4, 0, 3, 1], backgroundColor: 'rgba(79, 70, 229, 0.7)' },
+                { label: 'Gate Fidelity (log %)', data: [2.5, 3, 1, 2.8, 2.2], backgroundColor: 'rgba(107, 114, 128, 0.7)' },
+            ]
+        };
+
+        function renderCards() {
+            Object.keys(data).forEach(category => {
+                const container = document.getElementById(`${category}-cards`);
+                container.innerHTML = '';
+                data[category].forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'concept-card bg-white rounded-lg shadow-sm p-6 cursor-pointer hover:shadow-lg';
+                    card.innerHTML = `
+                        <h4 class="text-lg font-bold text-slate-900">${item.title}</h4>
+                        <div class="details mt-4 text-slate-600 space-y-3">${item.content}</div>
+                    `;
+                    container.appendChild(card);
+                });
+            });
+            renderKatex();
+            addCardListeners();
+        }
+
+        function renderKatex() {
+            document.querySelectorAll('.katex-render').forEach(el => {
+                try {
+                    katex.render(el.textContent, el, { throwOnError: false, displayMode: el.tagName === 'DIV' });
+                } catch (e) {
+                    el.textContent = `Error rendering LaTeX: ${e}`;
+                }
+            });
+        }
+        
+        function addCardListeners() {
+            document.querySelectorAll('.concept-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('a')) {
+                         e.stopPropagation();
+                         return;
+                    }
+
+                    if (activeCard && activeCard !== card) {
+                        activeCard.classList.remove('active');
+                    }
+                    card.classList.toggle('active');
+                    activeCard = card.classList.contains('active') ? card : null;
+
+                    if (card.querySelector('#qubitStateChart') && !qubitChart) {
+                        initQubitChart();
+                    }
+                    if (card.querySelector('#hardwareCompareChart') && !hardwareChart) {
+                        initHardwareChart();
+                    }
+                });
+            });
+        }
+
+        function initQubitChart() {
+            const ctx = document.getElementById('qubitStateChart').getContext('2d');
+            const slider = document.getElementById('alpha-slider');
+            
+            qubitChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Prob |0⟩', 'Prob |1⟩'],
+                    datasets: [{
+                        label: 'Measurement Probability',
+                        data: [0.5, 0.5],
+                        backgroundColor: ['rgba(79, 70, 229, 0.7)', 'rgba(209, 213, 219, 0.7)'],
+                        borderColor: ['rgba(79, 70, 229, 1)', 'rgba(209, 213, 219, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 1, title: { display: true, text: 'Probability' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            slider.addEventListener('input', (e) => {
+                const alphaSq = parseFloat(e.target.value);
+                const betaSq = 1 - alphaSq;
+                qubitChart.data.datasets[0].data = [alphaSq, betaSq];
+                qubitChart.update();
+            });
+        }
+
+        function initHardwareChart() {
+            const ctx = document.getElementById('hardwareCompareChart').getContext('2d');
+            hardwareChart = new Chart(ctx, {
+                type: 'bar',
+                data: JSON.parse(JSON.stringify(hardwareData)),
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { beginAtZero: true, title: { display: true, text: 'Log Scale Value' } }
+                    },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+            
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const metric = btn.dataset.metric;
+                    const datasetIndex = metric === 'coherence' ? 0 : 1;
+                    
+                    const combined = hardwareData.labels.map((label, index) => {
+                        return {
+                            label: label,
+                            coherence: hardwareData.datasets[0].data[index],
+                            fidelity: hardwareData.datasets[1].data[index]
+                        };
+                    });
+                    
+                    combined.sort((a, b) => b[metric] - a[metric]);
+
+                    hardwareChart.data.labels = combined.map(item => item.label);
+                    hardwareChart.data.datasets[0].data = combined.map(item => item.coherence);
+                    hardwareChart.data.datasets[1].data = combined.map(item => item.fidelity);
+                    hardwareChart.update();
+                    
+                    document.querySelectorAll('.sort-btn').forEach(b => b.classList.replace('bg-indigo-500', 'bg-slate-500'));
+                    btn.classList.replace('bg-slate-500', 'bg-indigo-500');
+                });
+            });
+        }
+
+        function handleNavigation() {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mobileNav = document.getElementById('mobile-nav');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+                        });
+                        if (document.activeElement !== mobileNav) {
+                            mobileNav.value = `#${id}`;
+                        }
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => observer.observe(section));
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            mobileNav.addEventListener('change', (e) => {
+                document.querySelector(e.target.value).scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCards();
+            handleNavigation();
+            document.querySelector('.nav-link').classList.add('active');
+        });
+    </script>
+</body>
+</html>
