@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Engineer's Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <!-- Chosen Palette: Calm Harmony (Warm neutrals with subtle blue accents) -->
+    <!-- Application Structure Plan: A task-oriented SPA with three main sections: "Company Explorer," "Learning Resources," and "Research Hub," managed by JS-driven navigation. This structure directly maps to the user's three-part query (companies/benchmarking, study, research). The "Company Explorer" is the default view, as it's the most complex and relevant to the "benchmarking" task. Key interactions include: 1) Top-level navigation to swap content sections. 2) Interactive filters (by hardware type, company role) in the Explorer to dynamically re-render a grid of company cards. 3) An interactive accordion in the "Learning" section to manage dense information. This structure is chosen for usability, allowing the user to focus on one task (Explore, Learn, or Research) at a time, with the most critical benchmarking tools presented first. -->
+    <!-- Visualization & Content Choices: 
+        1. Report Info: Company list & their hardware types (Superconducting, Trapped-Ion, etc.). Goal: Inform (Show hardware landscape). Viz Method: Donut Chart (Chart.js/Canvas). Interaction: Default tooltips. Justification: Provides a quick, high-level context for the "Company Explorer" by showing which hardware types are most prevalent among key players. Library: Chart.js.
+        2. Report Info: List of Software Platforms (Qiskit, PennyLane, Cirq). Goal: Organize (Present dense info accessibly). Presentation Method: HTML/CSS/JS Accordion. Interaction: Clicking a header toggles the visibility of its content panel. Justification: Prevents the "Learning" page from being an overwhelming wall of text and allows for focused study.
+        3. Report Info: Full list of all companies. Goal: Compare & Organize. Presentation Method: Dynamic Card Grid (HTML/CSS/JS). Interaction: User selects from filter dropdowns. JS re-populates the grid based on the filtered array. Justification: This is the core "benchmarking" feature, allowing the user to drill down to specific hardware or company types.
+        4. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .accordion-content {
+            display: none;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-button.active + .accordion-content {
+            display: block;
+        }
+        .nav-button {
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .nav-button.active {
+            background-color: #2563eb;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-5 text-center">
+            <h1 class="text-3xl font-bold text-gray-900">Quantum Engineer's Dashboard</h1>
+            <p class="text-md text-gray-600 mt-1">An interactive guide to algorithms, hardware, and research.</p>
+        </div>
+    </header>
+
+    <nav class="bg-gray-100 sticky top-0 z-10 shadow-md">
+        <div class="container mx-auto flex flex-wrap justify-center space-x-2 sm:space-x-4 p-3">
+            <button data-page="explorer-page" class="nav-button active px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base font-medium rounded-md text-gray-700 hover:bg-gray-200">
+                Company & Hardware Explorer
+            </button>
+            <button data-page="learning-page" class="nav-button px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base font-medium rounded-md text-gray-700 hover:bg-gray-200">
+                Learning Resources
+            </button>
+            <button data-page="research-page" class="nav-button px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base font-medium rounded-md text-gray-700 hover:bg-gray-200">
+                Research Hub
+            </button>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 sm:p-6">
+
+        <section id="explorer-page" class="page-content">
+            <div class="bg-white p-4 sm:p-6 rounded-lg shadow-lg mb-6">
+                <h2 class="text-2xl font-semibold mb-3 text-center">Company & Hardware Explorer</h2>
+                <p class="text-gray-700 text-center mb-6">
+                    This is your benchmarking hub. Explore the key companies, filter them by hardware or specialty, and see an overview of the hardware landscape. Use the filters to narrow your search based on your research needs.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="type-filter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Company Type</label>
+                        <select id="type-filter" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="all">All Company Types</option>
+                            <option value="hardware">Hardware & Full-Stack</option>
+                            <option value="software">Software, Cloud & Special-Focus</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="hardware-filter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Hardware</label>
+                        <select id="hardware-filter" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="all">All Hardware Types</option>
+                            <option value="Superconducting">Superconducting</option>
+                            <option value="Trapped-Ion">Trapped-Ion</option>
+                            <option value="Photonic">Photonic</option>
+                            <option value="Neutral-Atom">Neutral-Atom</option>
+                            <option value="Cloud">Cloud Platform</option>
+                            <option value="Topological">Topological (Research)</option>
+                            <option value="Varies">Varies (Software/Platform)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div id="company-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-center">Hardware Landscape Overview</h3>
+                    <p class="text-sm text-gray-600 mb-4 text-center">
+                        This chart shows the primary hardware focus of the major companies in this guide.
+                    </p>
+                    <div class="chart-container">
+                        <canvas id="hardware-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="learning-page" class="page-content hidden">
+             <div class="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-3 text-center">Foundational Learning Resources</h2>
+                <p class="text-gray-700 text-center mb-6">
+                    Master the fundamentals and the tools of the trade. This section covers the key software platforms you'll use for benchmarking, essential textbooks, and recommended online courses.
+                </p>
+                <div id="learning-accordion" class="space-y-3">
+                </div>
+            </div>
+        </section>
+
+        <section id="research-page" class="page-content hidden">
+            <div class="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-3 text-center">Research & Publication Hub</h2>
+                <p class="text-gray-700 text-center mb-6">
+                    Quantum computing moves at the speed of pre-prints. Here are the essential sources to monitor for the latest breakthroughs in algorithms, error correction, and experimental results.
+                </p>
+                <div id="research-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const companyData = [
+                { id: 'ibm', name: 'IBM Quantum', type: 'hardware', hardware: 'Superconducting', software: 'Qiskit', benchmark: 'CLOPS', summary: 'Focused on "utility-scale" systems and error mitigation. Public roadmap with 1000+ qubit systems. Champions the CLOPS metric.' },
+                { id: 'google', name: 'Google Quantum AI', type: 'hardware', hardware: 'Superconducting', software: 'Cirq', benchmark: 'Quantum Supremacy', summary: 'Primary focus on fault-tolerance via error correction. Famous for their 2019 "Quantum Supremacy" paper and Sycamore processor.' },
+                { id: 'quantinuum', name: 'Quantinuum', type: 'hardware', hardware: 'Trapped-Ion', software: 'TKET', benchmark: 'Quantum Volume', summary: 'Merger of Honeywell and Cambridge Quantum. Known for high-fidelity H-Series systems and high Quantum Volume (QV) scores.' },
+                { id: 'ionq', name: 'IonQ', type: 'hardware', hardware: 'Trapped-Ion', software: 'Cloud', benchmark: 'Algorithmic Qubits (#AQ)', summary: 'Focus on commercialization via cloud-accessible trapped-ion systems (Aria, Forte). Uses the #AQ benchmark.' },
+                { id: 'rigetti', name: 'Rigetti Computing', type: 'hardware', hardware: 'Superconducting', software: 'Quil', benchmark: 'Varies', summary: 'Developing modular, multi-chip superconducting processors. Focus on performance and QML applications with their Ankaa-2 system.' },
+                { id: 'pasqal', name: 'Pasqal', type: 'hardware', hardware: 'Neutral-Atom', software: 'Pulser', benchmark: 'Analog Simulation', summary: 'Leader in neutral-atom arrays, which are excellent for analog simulation of physical systems and optimization problems.' },
+                { id: 'xanadu', name: 'Xanadu', type: 'hardware', hardware: 'Photonic', software: 'PennyLane', benchmark: 'Boson Sampling', summary: 'Leader in photonic quantum computing. Created and maintains PennyLane, the leading SDK for Quantum Machine Learning (QML).' },
+                { id: 'amazon', name: 'Amazon (AWS Braket)', type: 'software', hardware: 'Cloud', software: 'AWS Braket', benchmark: 'Varies', summary: 'A hardware-agnostic cloud service. Provides access to various backends (IonQ, Rigetti, etc.) and simulators, making it a key platform for benchmarking.' },
+                { id: 'microsoft', name: 'Microsoft (Azure Quantum)', type: 'software', hardware: 'Topological', software: 'Azure Quantum', benchmark: 'Varies', summary: 'Cloud platform similar to AWS. Their unique internal research is a long-term bet on developing inherently fault-tolerant Topological qubits.' },
+                { id: 'zapata', name: 'Zapata Computing', type: 'software', hardware: 'Varies', software: 'Orquestra', benchmark: 'Varies', summary: 'Enterprise software company. Their Orquestra platform manages quantum-classical workflows for optimization, chemistry, and finance.' },
+                { id: 'qctrl', name: 'Q-CTRL', type: 'software', hardware: 'Varies', software: 'Quantum Control', benchmark: 'Varies', summary: 'Specialist in quantum control software. Their tools help stabilize hardware and suppress errors, improving performance on any backend.' }
+            ];
+
+            const learningData = [
+                {
+                    title: "Key Software Platforms",
+                    content: `
+                        <ul class="list-disc pl-5 space-y-4">
+                            <li><strong>Qiskit (IBM):</strong> The most widely used SDK. Connects to IBM's hardware. Essential for its extensive documentation, tutorials, and Qiskit Runtime for error mitigation.</li>
+                            <li><strong>PennyLane (Xanadu):</strong> The standard for quantum machine learning (QML). A cross-platform, differentiable programming library that integrates with PyTorch/TensorFlow. Perfect for benchmarking across different hardware.</li>
+                            <li><strong>Cirq (Google):</strong> Designed for Noisy Intermediate-Scale Quantum (NISQ) devices. Focused on hardware specifics and error correction research, ideal for Google's processors.</li>
+                        </ul>
+                    `
+                },
+                {
+                    title: "Core Textbooks",
+                    content: `
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>"Quantum Computation and Quantum Information" (Nielsen & Chuang):</strong> The essential, comprehensive reference for theory, algorithms, and error correction.</li>
+                            <li><strong>"Quantum Computing: A Gentle Introduction" (Rieffel & Polak):</strong> A more accessible starting point for fundamental concepts.</li>
+                        </ul>
+                    `
+                },
+                {
+                    title: "Online Courses & Lectures",
+                    content: `
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>Qiskit YouTube Channel:</strong> Features the complete Global Summer School videos, which are outstanding.</li>
+                            <li><strong>Coursera:</strong> "Quantum Computing: From Basics to Qiskit" (St. Petersburg University) or "The Quantum Internet and Quantum Computers" (TU Delft).</li>
+                            <li><strong>edX:</strong> MIT's "Quantum Information Science" series for a deep theoretical dive.</li>
+                        </ul>
+                    `
+                }
+            ];
+
+            const researchData = [
+                { title: 'arXiv (quant-ph)', description: 'The daily pre-print server for quantum physics. 99% of all significant research appears here first.' },
+                { title: 'PRX Quantum', description: 'A high-impact, peer-reviewed journal from the American Physical Society.' },
+                { title: 'Nature Quantum Information', description: 'A premier journal from Nature for quantum information science.' },
+                { title: 'Quantum', description: 'A community-run, open-access, and highly-respected peer-reviewed journal.' },
+                { title: 'QIP Conference', description: 'The premier academic conference for theoretical quantum information processing.' },
+                { title: 'APS March Meeting', description: 'The largest physics conference, with a massive track dedicated to quantum computing.' }
+            ];
+
+            const typeFilter = document.getElementById('type-filter');
+            const hardwareFilter = document.getElementById('hardware-filter');
+            const companyGrid = document.getElementById('company-grid');
+            const learningAccordion = document.getElementById('learning-accordion');
+            const researchGrid = document.getElementById('research-grid');
+
+            function createCompanyCard(company) {
+                return `
+                    <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden flex flex-col">
+                        <div class="p-5 flex-grow">
+                            <h4 class="text-xl font-semibold text-blue-700 mb-2">${company.name}</h4>
+                            <p class="text-gray-700 mb-4">${company.summary}</p>
+                        </div>
+                        <div class="p-5 bg-gray-50 border-t border-gray-200 text-sm">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <span class="font-semibold text-gray-600">Hardware:</span>
+                                    <span class="block text-gray-800">${company.hardware}</span>
+                                </div>
+                                <div>
+                                    <span class="font-semibold text-gray-600">Software:</span>
+                                    <span class="block text-gray-800">${company.software}</span>
+                                </div>
+                                <div>
+                                    <span class="font-semibold text-gray-600">Focus:</span>
+                                    <span class="block text-gray-800">${company.type === 'hardware' ? 'Full-Stack' : 'Software/Cloud'}</span>
+                                </div>
+                                <div>
+                                    <span class="font-semibold text-gray-600">Benchmark:</span>
+                                    <span class="block text-gray-800">${company.benchmark}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function renderCompanies() {
+                const typeVal = typeFilter.value;
+                const hwVal = hardwareFilter.value;
+
+                const filteredCompanies = companyData.filter(c => {
+                    const typeMatch = typeVal === 'all' || c.type === typeVal;
+                    const hwMatch = hwVal === 'all' || c.hardware === hwVal || (hwVal === 'Varies' && (c.hardware === 'Varies' || c.hardware === 'Cloud'));
+                    return typeMatch && hwMatch;
+                });
+
+                if (filteredCompanies.length > 0) {
+                    companyGrid.innerHTML = filteredCompanies.map(createCompanyCard).join('');
+                } else {
+                    companyGrid.innerHTML = `<p class="text-gray-600 md:col-span-2 text-center">No companies match your filter criteria.</p>`;
+                }
+            }
+
+            function initExplorerPage() {
+                renderCompanies();
+                typeFilter.addEventListener('change', renderCompanies);
+                hardwareFilter.addEventListener('change', renderCompanies);
+
+                const hardwareCounts = companyData.reduce((acc, company) => {
+                    let hw = company.hardware;
+                    if (company.type === 'software') {
+                        hw = 'Software/Cloud';
+                    }
+                    if (hw === 'Cloud' || hw === 'Varies' || hw === 'Topological') {
+                        hw = 'Software/Cloud';
+                    }
+                    acc[hw] = (acc[hw] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const chartLabels = Object.keys(hardwareCounts);
+                const chartData = Object.values(hardwareCounts);
+
+                const ctx = document.getElementById('hardware-chart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'Companies by Hardware',
+                            data: chartData,
+                            backgroundColor: [
+                                '#3b82f6', // Superconducting
+                                '#10b981', // Trapped-Ion
+                                '#ec4899', // Photonic
+                                '#f97316', // Neutral-Atom
+                                '#6b7280'  // Software/Cloud
+                            ],
+                            borderColor: '#ffffff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function initLearningPage() {
+                learningAccordion.innerHTML = learningData.map((item, index) => `
+                    <div class="border border-gray-200 rounded-md">
+                        <button class="accordion-button w-full flex justify-between items-center text-left p-4 bg-gray-100 hover:bg-gray-200 focus:outline-none" data-index="${index}">
+                            <span class="text-lg font-medium text-gray-800">${item.title}</span>
+                            <span class="text-blue-600 text-2xl transform transition-transform duration-200">+</span>
+                        </button>
+                        <div class="accordion-content p-4 bg-white border-t border-gray-200">
+                            ${item.content}
+                        </div>
+                    </div>
+                `).join('');
+
+                learningAccordion.addEventListener('click', (e) => {
+                    const button = e.target.closest('.accordion-button');
+                    if (!button) return;
+
+                    const content = button.nextElementSibling;
+                    const plusSign = button.querySelector('span:last-child');
+
+                    if (content.style.display === "block") {
+                        content.style.display = "none";
+                        button.classList.remove('active');
+                        plusSign.textContent = '+';
+                        plusSign.classList.remove('rotate-45');
+                    } else {
+                        content.style.display = "block";
+                        button.classList.add('active');
+                        plusSign.textContent = '-';
+                        plusSign.classList.add('rotate-45');
+                    }
+                });
+            }
+
+            function initResearchPage() {
+                researchGrid.innerHTML = researchData.map(item => `
+                    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-5">
+                        <h4 class="text-lg font-semibold text-blue-700 mb-2">${item.title}</h4>
+                        <p class="text-gray-700">${item.description}</p>
+                    </div>
+                `).join('');
+            }
+
+            const navButtons = document.querySelectorAll('.nav-button');
+            const pages = document.querySelectorAll('.page-content');
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetPageId = button.dataset.page;
+
+                    navButtons.forEach(btn => {
+                        btn.classList.remove('active', 'bg-blue-600', 'text-white');
+                    });
+                    button.classList.add('active', 'bg-blue-600', 'text-white');
+
+                    pages.forEach(page => {
+                        if (page.id === targetPageId) {
+                            page.classList.remove('hidden');
+                        } else {
+                            page.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            initExplorerPage();
+            initLearningPage();
+            initResearchPage();
+        });
+    </script>
+</body>
+</html>
