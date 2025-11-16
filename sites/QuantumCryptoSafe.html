@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse: QKD-Sicherheit und die Gesetze der Physik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Warm Neutral Harmony (BG: amber-50, Text: stone-800, Accent: orange-900) -->
+    <!-- Application Structure Plan: Designed a 5-section thematic SPA (Home, The Claim, The Model, The Reality, Conclusion) with a sticky nav. This structure guides the user through the paper's logical argument, from the established belief (The Claim) to the theoretical basis (The Model) and then to the core critique (The Reality). The "Reality" section uses an interactive tabbed interface to break down complex physical obstacles (Side Channels, Holography, etc.) into digestible pieces. This is more user-friendly than a linear paper format, encouraging exploration of the core argument. -->
+    <!-- Visualization & Content Choices: Report Info: Common QKD claims (quotes) -> Goal: Set context -> Viz/Method: HTML blockquotes -> Interaction: None -> Justification: Direct & clear. | Report Info: Theoretical QKD model (Alice/Bob/Eve) -> Goal: Organize/Explain -> Viz/Method: HTML/Tailwind diagram (flexbox boxes & arrows) -> Interaction: None -> Justification: Visual aid without SVG. | Report Info: DJB's list of "ignored" physical laws -> Goal: Compare/Inform -> Viz/Method: Tabbed content panes -> Interaction: JS-powered tabs (click to reveal) -> Justification: Breaks down the dense, core argument into manageable, user-driven chunks. | Report Info: No quantitative data in source -> Goal: N/A -> Viz/Method: No charts (Chart.js/Plotly) used -> Interaction: N/A -> Justification: Report is qualitative/argumentative; charts are inappropriate. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .nav-link {
+            @apply px-3 py-2 text-stone-700 hover:text-orange-900 rounded-md transition-colors;
+        }
+        .nav-link-active {
+            @apply text-orange-900 font-semibold;
+        }
+        .tab-button {
+            @apply px-4 py-2 text-sm font-medium rounded-t-lg transition-all border-b-2;
+        }
+        .tab-active {
+            @apply bg-white border-orange-600 text-orange-700;
+        }
+        .tab-inactive {
+            @apply border-transparent text-stone-500 hover:text-stone-800 hover:border-stone-300;
+        }
+        .tab-content {
+            display: none;
+        }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 350px; 
+            max-height: 400px; 
+        }
+    </style>
+</head>
+<body class="bg-amber-50 text-stone-800 font-sans leading-relaxed">
+
+    <header class="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-sm">
+        <nav class="max-w-5xl mx-auto flex justify-center items-center p-4">
+            <div class="flex flex-wrap justify-center space-x-2 md:space-x-4">
+                <a href="#home" class="nav-link nav-link-active" data-section="home">Home</a>
+                <a href="#claim" class="nav-link" data-section="claim">The Common Claim</a>
+                <a href="#model" class="nav-link" data-section="model">The "Proof" Model</a>
+                <a href="#reality" class="nav-link" data-section="reality">The Physical Reality</a>
+                <a href="#conclusion" class="nav-link" data-section="conclusion">Conclusion</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 md:p-8 space-y-16">
+
+        <section id="home" class="text-center pt-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-orange-900 mb-4">Is the security of quantum cryptography guaranteed by the laws of physics?</h1>
+            <p class="text-lg text-stone-700 mb-2">An interactive analysis of the paper by</p>
+            <p class="text-xl font-semibold text-orange-800">Daniel J. Bernstein</p>
+            
+            <div class="mt-8 text-left bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+                <h2 class="text-xl font-semibold text-orange-900 mb-3">Abstract</h2>
+                <p class="text-stone-700">It is often claimed that the security of theoretical quantum key distribution (QKD) is guaranteed by the laws of physics. However, this claim is content-free if the underlying definition of theoretical QKD is not actually compatible with the laws of physics. This paper observes that (1) the laws of physics pose serious obstacles to the security of QKD and (2) these laws are ignored in all QKD "security proofs".</p>
+            </div>
+        </section>
+
+        <section id="claim" class="pt-16">
+            <h2 class="text-2xl md:text-3xl font-bold text-orange-900 mb-4 text-center">The Common Claim</h2>
+            <p class="text-lg text-stone-700 mb-8 text-center max-w-2xl mx-auto">
+                This section highlights the prevailing belief about Quantum Key Distribution (QKD). For decades, QKD has been presented as the ultimate security solution, with its safety guaranteed not by mathematical complexity, but by the fundamental laws of nature.
+            </p>
+            
+            <div class="space-y-6">
+                <blockquote class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-orange-600">
+                    <p class="text-lg italic text-stone-700 mb-3">"QKD offers the ultimate security of the inviolability of a law of Nature for key distribution."</p>
+                    <footer class="text-right text-stone-600">— Hughes, Alde, Dyer, et al., 1995</footer>
+                </blockquote>
+                
+                <blockquote class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-orange-600">
+                    <p class="text-lg italic text-stone-700 mb-3">"Quantum cryptography differs from conventional cryptography in that the data are kept secret by the properties of quantum mechanics, rather than the conjectured difficulty of computing certain functions."</p>
+                    <footer class="text-right text-stone-600">— Shor and Preskill, 2000</footer>
+                </blockquote>
+            </div>
+            <p class="text-lg text-stone-700 mt-8 text-center">
+                The core idea is simple: if an eavesdropper (Eve) tries to measure the quantum state sent from Alice to Bob, the very act of measurement disturbs the state, revealing her presence. This, it is claimed, provides "perfect security."
+            </p>
+        </section>
+
+        <section id="model" class="pt-16">
+            <h2 class="text-2xl md:text-3xl font-bold text-orange-900 mb-4 text-center">The "Proof" Model</h2>
+            <p class="text-lg text-stone-700 mb-8 text-center max-w-2xl mx-auto">
+                To "prove" QKD is secure, scientists use a theoretical model. This model simplifies the world to make the mathematics solvable. This section illustrates that simplified model and highlights the critical assumptions it makes. The paper's core argument is that these assumptions are not physically realistic.
+            </p>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200">
+                <h3 class="text-xl font-semibold text-orange-900 mb-6 text-center">A Simplified View of QKD</h3>
+                <div class="flex flex-col md:flex-row justify-around items-center space-y-8 md:space-y-0 md:space-x-4">
+                    
+                    <div class="flex flex-col items-center p-4 bg-amber-100 rounded-lg w-40 text-center">
+                        <span class="text-5xl mb-2">👩‍💻</span>
+                        <span class="font-bold text-orange-900">Alice</span>
+                        <span class="text-sm text-stone-700">(Sender)</span>
+                    </div>
+
+                    <div class="flex flex-col items-center">
+                        <div class="font-mono text-orange-700">Quantum Channel</div>
+                        <div class="text-4xl text-orange-600 transform scale-x-150 my-2">→</div>
+                        <div class="flex items-center space-x-2 p-2 bg-red-100 rounded-lg">
+                            <span class="text-3xl">🕵️</span>
+                            <span class="font-bold text-red-900">Eve</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center p-4 bg-amber-100 rounded-lg w-40 text-center">
+                        <span class="text-5xl mb-2">🖥️</span>
+                        <span class="font-bold text-orange-900">Bob</span>
+                        <span class="text-sm text-stone-700">(Receiver)</span>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h4 class="text-lg font-semibold text-orange-900 mb-3">Key Assumptions of the "Proof":</h4>
+                    <ul class="list-disc list-inside space-y-2 text-stone-700">
+                        <li>The system is <strong class="text-orange-800">perfectly isolated</strong> from the rest of the universe.</li>
+                        <li>Eve's power is <strong class="text-orange-800">limited only by the laws of quantum mechanics</strong> applied to the quantum channel itself.</li>
+                        <li>The devices (Alice, Bob) are perfect, abstract "black boxes" that do not leak any other information.</li>
+                        <li>The "laws of physics" in the model are <strong class="text-orange-800">only</strong> the parts of quantum mechanics being used, not all known physics.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section id="reality" class="pt-16">
+            <h2 class="text-2xl md:text-3xl font-bold text-orange-900 mb-4 text-center">The Physical Reality: Ignored Obstacles</h2>
+            <p class="text-lg text-stone-700 mb-8 text-center max-w-2xl mx-auto">
+                This is the central argument of the paper. The "security proofs" are only valid within their own simplified model. They fail by ignoring other, equally real laws of physics that create massive security holes. Click the tabs below to explore these "ignored obstacles."
+            </p>
+
+            <div class="bg-white rounded-lg shadow-sm border border-stone-200">
+                <div role="tablist" aria-label="Ignored Physical Obstacles" class="flex flex-wrap border-b border-stone-300">
+                    <button role="tab" aria-selected="true" aria-controls="content-side-channels" id="tab-side-channels" data-target="content-side-channels" class="tab-button tab-active">Side Channels</button>
+                    <button role="tab" aria-selected="false" aria-controls="content-information-flow" id="tab-information-flow" data-target="content-information-flow" class="tab-button tab-inactive">Information Flow</button>
+                    <button role="tab" aria-selected="false" aria-controls="content-electromagnetism" id="tab-electromagnetism" data-target="content-electromagnetism" class="tab-button tab-inactive">Electromagnetism</button>
+                    <button role="tab" aria-selected="false" aria-controls="content-gravity" id="tab-gravity" data-target="content-gravity" class="tab-button tab-inactive">Gravity</button>
+                    <button role="tab" aria-selected="false" aria-controls="content-holographic" id="tab-holographic" data-target="content-holographic" class="tab-button tab-inactive">Holographic Principle</button>
+                </div>
+
+                <div class="p-6">
+                    <div role="tabpanel" id="content-side-channels" class="tab-content" style="display: block;">
+                        <h3 class="text-xl font-semibold text-orange-900 mb-3">Side-Channel Attacks</h3>
+                        <p class="text-stone-700 mb-4">
+                            <strong class="text-orange-800">The Physics:</strong> Physical devices are not abstract boxes. They are objects in the real world that interact with their environment. They consume power, make faint sounds, and radiate heat and electromagnetic signals as they operate.
+                        </p>
+                        <p class="text-stone-700">
+                            <strong class="text-orange-800">The Flaw:</strong> QKD "security proofs" completely ignore this. They assume the *only* information leak is through the quantum channel. An attacker (Eve) doesn't need to measure the photon; she can just measure the power consumption of Alice's device or the electromagnetic radiation from Bob's detector. These "side channels" can leak the *entire secret key*, and they are not protected by quantum mechanics at all.
+                        </p>
+                    </div>
+                    <div role="tabpanel" id="content-information-flow" class="tab-content">
+                        <h3 class="text-xl font-semibold text-orange-900 mb-3">Information Flow</h3>
+                        <p class="text-stone-700 mb-4">
+                            <strong class="text-orange-800">The Physics:</strong> Information cannot travel faster than the speed of light. This fundamental limit (relativity) governs how and when information is available to an attacker.
+                        </p>
+                        <p class="text-stone-700">
+                            <strong class="text-orange-800">The Flaw:</strong> Many QKD security proofs are "unphysical" in their treatment of time and information. They might mathematically combine information from different points in spacetime (e.g., Alice's operation and Bob's later operation) in a way that assumes an attacker could access both simultaneously. A physically realistic proof must respect the causal structure of spacetime—an attacker can only act on the information available to them *at their location and time*.
+                        </p>
+                    </div>
+                    <div role="tabpanel" id="content-electromagnetism" class="tab-content">
+                        <h3 class="text-xl font-semibold text-orange-900 mb-3">Electromagnetism</h3>
+                        <p class="text-stone-700 mb-4">
+                            <strong class="text-orange-800">The Physics:</strong> This is the most common and powerful side channel. Any flow of electricity (which QKD devices are full of) creates an electromagnetic field. These fields travel outwards at the speed of light, carrying detailed information about the electrical signals that created them.
+                        </s
+                        <p class="text-stone-700">
+                            <strong class="text-orange-800">The Flaw:</strong> The QKD "proof" model assumes the device is a "black box." In reality, an attacker can place an antenna near the QKD device and read the secret key directly from its electromagnetic emissions. This is a classic, well-understood attack (like TEMPEST) from non-quantum cryptography, and the "laws of physics" (Maxwell's equations) *guarantee* this information leak, while QKD proofs ignore it.
+                        </p>
+                    </div>
+                    <div role="tabpanel" id="content-gravity" class="tab-content">
+                        <h3 class="text-xl font-semibold text-orange-900 mb-3">Gravity</h3>
+                        <p class="text-stone-700 mb-4">
+                            <strong class="text-orange-800">The Physics:</strong> Every object with mass (like a QKD device and its components) exerts a gravitational force. This force changes minutely as components move or as the device processes data (mass-energy equivalence).
+                        </s
+                        <p class="text-stone-700">
+                            <strong class="text-orange-800">The Flaw:</strong> While extraordinarily difficult to measure, this is another physical side channel that is *guaranteed* to exist by the laws of physics (General Relativity). A complete "security proof" that claims to be based on *all* laws of physics would have to account for an attacker using a hyper-sensitive gravitational wave detector to "listen" to the device. The fact that this is ignored shows how selective the "proofs" are.
+                        </p>
+                    </div>
+                    <div role="tabpanel" id="content-holographic" class="tab-content">
+                        <h3 class="text-xl font-semibold text-orange-900 mb-3">The Holographic Principle</h3>
+                        <p class="text-stone-700 mb-4">
+                            <strong class="text-orange-800">The Physics:</strong> This is a more advanced concept from theoretical physics. It suggests that all the information contained within a volume of space (like the room holding the QKD device) can be fully described by the information on the *boundary* of that space (the walls of the room).
+                        </s
+                        <p class="text-stone-700">
+                            <strong class="text-orange-800">The Flaw:</strong> If this principle is true, it has profound security implications. An attacker (Eve) might not need to enter the room or even measure the device itself. By completely monitoring the *boundary* (the walls), she could, in theory, reconstruct *all* information inside, including the secret key. No QKD proof even begins to consider this physical possibility.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="conclusion" class="pt-16 pb-16">
+            <h2 class="text-2xl md:text-3xl font-bold text-orange-900 mb-4 text-center">Conclusion: A "Content-Free" Claim</h2>
+            <p class="text-lg text-stone-700 mb-8 text-center max-w-2xl mx-auto">
+                This interactive analysis brings us to the paper's final, powerful conclusion. The claim that "QKD security is guaranteed by the laws of physics" is misleading at best.
+            </p>
+            
+            <div class="bg-white p-8 rounded-lg shadow-lg border-t-4 border-orange-600">
+                <p class="text-xl text-stone-700 leading-relaxed">
+                    The "security proofs" for QKD are not based on the *complete* laws of physics. They are based on a <strong class="text-orange-800">tiny, idealized subset</strong> of quantum mechanics.
+                </p>
+                <br>
+                <p class="text-xl text-stone-700 leading-relaxed">
+                    These proofs systematically ignore other, equally fundamental laws (like electromagnetism, relativity, and gravity) which <strong class="text-orange-800">actively create vulnerabilities</strong> (side channels) that can completely break the system.
+                </p>
+                <br>
+                <p class="text-xl font-semibold text-orange-900 text-center leading-relaxed">
+                    Therefore, the claim is "content-free" because the very laws of physics it relies on are the same laws that are being ignored.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center p-8 bg-amber-100 text-stone-600 text-sm border-t border-amber-200">
+        <p>This is an interactive web-based analysis of the paper "Is the security of quantum cryptography guaranteed by the laws of physics?" by Daniel J. Bernstein.</p>
+        <p>All content is derived from the source paper for educational and analytical purposes.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            function setupTabs() {
+                const tabs = document.querySelectorAll('button[role="tab"]');
+                const tabPanels = document.querySelectorAll('div[role="tabpanel"]');
+
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        
+                        tabs.forEach(t => {
+                            t.setAttribute('aria-selected', 'false');
+                            t.classList.remove('tab-active');
+                            t.classList.add('tab-inactive');
+                        });
+
+                        tab.setAttribute('aria-selected', 'true');
+                        tab.classList.add('tab-active');
+                        tab.classList.remove('tab-inactive');
+
+                        const targetId = tab.getAttribute('data-target');
+                        
+                        tabPanels.forEach(panel => {
+                            if (panel.id === targetId) {
+                                panel.style.display = 'block';
+                            } else {
+                                panel.style.display = 'none';
+                            }
+                        });
+                    });
+                });
+            }
+
+            function setupNavigation() {
+                const navLinks = document.querySelectorAll('.nav-link');
+                const sections = document.querySelectorAll('section');
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.id;
+                            navLinks.forEach(link => {
+                                link.classList.toggle('nav-link-active', link.getAttribute('href') === `#${id}`);
+                            });
+                        }
+                    });
+                }, { rootMargin: '-30% 0px -70% 0px', threshold: 0 });
+
+                sections.forEach(section => {
+                    observer.observe(section);
+                });
+
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = link.getAttribute('href');
+                        document.querySelector(targetId).scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    });
+                });
+            }
+
+            setupTabs();
+            setupNavigation();
+        });
+    </script>
+
+</body>
+</html>
