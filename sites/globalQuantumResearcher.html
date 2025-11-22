@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Quantum Researcher Directory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 320px;
+            }
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .nav-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: background-color 0.2s, color 0.2s;
+            cursor: pointer;
+        }
+        .nav-button.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+        .nav-button:not(.active):hover {
+            background-color: #eef2ff;
+        }
+        .tag {
+            display: inline-block;
+            background-color: #e0e7ff;
+            color: #3730a3;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .tag-industry {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+    </style>
+    <!-- Chosen Palette: Calm Harmony (Warm Neutrals: bg-gray-50, text-gray-800; Accent: Indigo) -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive directory/dashboard. The user's query ("get all... in particular industry") implies a filtering task. Therefore, the information architecture is a two-column dashboard layout (stacking on mobile). The left column (sidebar) contains all filtering controls (search, industry, field) and a dynamic summary visualization (a bar chart of researchers by field). The right column (main content) displays the filterable results as a responsive grid of "Researcher Cards." This structure is chosen for usability because it places controls and summary data in a persistent location, allowing users to immediately see the results of their interactions in the adjacent content panel. This is superior to a linear report for exploration and discovery. -->
+    <!-- Visualization & Content Choices: 
+        1. Researcher Database (Report Info) -> Goal: Inform, Organize -> Viz: HTML/Tailwind Card Grid -> Interaction: External links -> Justification: Scannable, responsive, and familiar UI for a directory.
+        2. Industry/Field Categories (Report Info) -> Goal: Organize (Filter) -> Viz: HTML <select> dropdowns -> Interaction: 'change' event triggers JS filter function -> Justification: Standard, space-saving UI for categorical filtering.
+        3. Researcher Names/Affiliations (Report Info) -> Goal: Organize (Filter) -> Viz: HTML <input type="search"> -> Interaction: 'input' event triggers JS filter function -> Justification: Standard UI for free-text search.
+        4. Researcher Distribution by Field (Report Info) -> Goal: Compare, Inform -> Viz: Bar Chart (Chart.js/Canvas) -> Interaction: Chart dynamically updates based on active filters -> Justification: Provides a high-level summary of the filtered dataset, adding analytical value.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div id="app" class="min-h-screen">
+        
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold text-indigo-600">QuantumView</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <button class="nav-button active" data-section="directory">Directory</button>
+                            <button class="nav-button" data-section="about">About</button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <section id="directory-section" class="app-section">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Global Quantum Researcher Directory</h1>
+                    <p class="text-lg text-gray-600">This interactive directory allows you to explore a curated database of global quantum researchers. Use the filters to narrow your search by industry, research field, or name, and discover key individuals shaping the future of quantum technology.</p>
+                </div>
+
+                <div class="md:grid md:grid-cols-4 md:gap-8">
+                    
+                    <aside class="md:col-span-1 mb-8 md:mb-0">
+                        <div class="sticky top-24 bg-white p-6 rounded-lg shadow-md">
+                            <h2 class="text-xl font-semibold mb-4">Filter Researchers</h2>
+                            <p class="text-sm text-gray-600 mb-4">Use the controls below to filter the researcher list and dynamically update the 'Researchers by Field' chart.</p>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="search" class="block text-sm font-medium text-gray-700">Search by Name/Affiliation</label>
+                                    <input type="search" id="search" placeholder="e.g., Dr. Smith, Quantum University" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                
+                                <div>
+                                    <label for="filter-industry" class="block text-sm font-medium text-gray-700">Industry Focus</label>
+                                    <select id="filter-industry" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        <option value="all">All Industries</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="filter-field" class="block text-sm font-medium text-gray-700">Research Field</label>
+                                    <select id="filter-field" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        <option value="all">All Fields</option>
+                                    </select>
+                                </div>
+                                
+                                <button id="reset-filters" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Reset Filters</button>
+                            </div>
+                            
+                            <hr class="my-6">
+                            
+                            <h3 class="text-lg font-semibold mb-3 text-gray-900">Researchers by Field</h3>
+                            <div class="chart-container">
+                                <canvas id="fieldChart"></canvas>
+                            </div>
+                        </div>
+                    </aside>
+                    
+                    <div class="md:col-span-3">
+                        <div class="mb-4">
+                            <p id="results-count" class="text-md font-medium text-gray-700">Loading researchers...</p>
+                        </div>
+                        <div id="researcher-grid" class="card-grid">
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="about-section" class="app-section hidden">
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">About QuantumView</h1>
+                    <div class="space-y-4 text-gray-700">
+                        <p>QuantumView is an interactive application designed to make information about the global quantum research landscape more accessible and consumable. This tool is built from a hypothetical report analyzing the distribution of quantum talent across various industries and research specializations.</p>
+                        <p>The primary goal is to provide a user-friendly interface for exploring this data. Instead of a static PDF, QuantumView allows you to dynamically filter, search, and visualize the researcher database, gaining insights into the composition of the quantum community.</p>
+                        <h2 class="text-2xl font-semibold pt-4">Data & Methodology</h2>
+                        <p>The data presented here is a representative sample created for demonstration purposes. In a real-world scenario, this database would be populated from a comprehensive analysis of academic publications, industry reports, conference proceedings, and professional networks.</p>
+                        <p>The application structure is intentionally designed to facilitate exploration. By separating filtering controls and summary visualizations from the detailed results, users can maintain context while drilling down into specific areas of interest.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="bg-white mt-12 border-t border-gray-200">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+                &copy; 2025 QuantumView. All data is representative.
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const researcherData = [
+                { name: "Dr. Evelyn Reed", field: "Quantum Computing", industry: "Tech", affiliation: "QuantumLeap AI", url: "#" },
+                { name: "Prof. Kenji Tanaka", field: "Quantum Sensing", industry: "Academia", affiliation: "MIT Quantum Institute", url: "#" },
+                { name: "Dr. Ben Carter", field: "Quantum Cryptography", industry: "Finance", affiliation: "SecureBank Innovations", url: "#" },
+                { name: "Dr. Anya Sharma", field: "Quantum Materials", industry: "Manufacturing", affiliation: "NanoFab Solutions", url: "#" },
+                { name: "Prof. Leo Martinez", field: "Quantum Algorithms", industry: "Academia", affiliation: "Stanford Q-Farm", url: "#" },
+                { name: "Dr. Sarah Chen", field: "Quantum Computing", industry: "Tech", affiliation: "Google Quantum AI", url: "#" },
+                { name: "Dr. Markus Weber", field: "Quantum Sensing", industry: "Healthcare", affiliation: "BioQuantix Diagnostics", url: "#" },
+                { name: "Dr. Fatima Al-Jamil", field: "Quantum Cryptography", industry: "Government", affiliation: "National Security Agency", url: "#" },
+                { name: "Prof. David Kim", field: "Quantum Materials", industry: "Academia", affiliation: "Caltech IQIM", url: "#" },
+                { name: "Dr. Chloe Dubois", field: "Quantum Algorithms", industry: "Tech", affiliation: "Microsoft Quantum", url: "#" },
+                { name: "Dr. Ivan Petrov", field: "Quantum Computing", industry: "Finance", affiliation: "QuantForte Capital", url: "#" },
+                { name: "Prof. Maria Garcia", field: "Quantum Sensing", industry: "Academia", affiliation: "University of Waterloo", url: "#" },
+                { name: "Dr. Tom Riley", field: "Quantum Cryptography", industry: "Tech", affiliation: "Cylance Security", url: "#" },
+                { name: "Dr. Li Wei", field: "Quantum Materials", industry: "Tech", affiliation: "Intel Quantum Hardware", url: "#" },
+                { name: "Dr. Sam O'Malley", field: "Quantum Algorithms", industry: "Logistics", affiliation: "OptiChain Dynamics", url: "#" },
+                { name: "Prof. Helen Brooke", field: "Quantum Computing", industry: "Academia", affiliation: "Oxford Quantum Group", url: "#" },
+                { name: "Dr. Raj Patel", field: "Quantum Sensing", industry: "Environmental", affiliation: "TerraQuantum Analytics", url: "#" },
+                { name: "Dr. Nina Volkov", field: "Quantum Cryptography", industry: "Finance", affiliation: "Aegis Financial", url: "#" }
+            ];
+
+            const searchInput = document.getElementById('search');
+            const industryFilter = document.getElementById('filter-industry');
+            const fieldFilter = document.getElementById('filter-field');
+            const resetButton = document.getElementById('reset-filters');
+            const grid = document.getElementById('researcher-grid');
+            const resultsCount = document.getElementById('results-count');
+            const chartCanvas = document.getElementById('fieldChart').getContext('2d');
+            
+            const navButtons = document.querySelectorAll('.nav-button');
+            const sections = document.querySelectorAll('.app-section');
+
+            let fieldChart;
+
+            function populateFilters() {
+                const industries = [...new Set(researcherData.map(r => r.industry))].sort();
+                const fields = [...new Set(researcherData.map(r => r.field))].sort();
+
+                industries.forEach(industry => {
+                    const option = document.createElement('option');
+                    option.value = industry;
+                    option.textContent = industry;
+                    industryFilter.appendChild(option);
+                });
+
+                fields.forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field;
+                    option.textContent = field;
+                    fieldFilter.appendChild(option);
+                });
+            }
+
+            function renderCards(researchers) {
+                grid.innerHTML = '';
+                if (researchers.length === 0) {
+                    grid.innerHTML = `<p class="text-gray-600 md:col-span-3">No researchers found matching your criteria.</p>`;
+                    return;
+                }
+                
+                researchers.forEach(r => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-lg shadow-md p-5 transition-shadow duration-200 hover:shadow-lg';
+                    card.innerHTML = `
+                        <h3 class="text-xl font-semibold text-indigo-700 mb-2">${r.name}</h3>
+                        <p class="text-gray-700 font-medium mb-3">${r.affiliation}</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="tag">${r.field}</span>
+                            <span class="tag tag-industry">${r.industry}</span>
+                        </div>
+                        <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="font-medium text-indigo-600 hover:text-indigo-800">
+                            View Portfolio &rarr;
+                        </a>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            function updateChart(researchers) {
+                const fieldCounts = {};
+                researchers.forEach(r => {
+                    fieldCounts[r.field] = (fieldCounts[r.field] || 0) + 1;
+                });
+
+                const labels = Object.keys(fieldCounts).sort();
+                const data = labels.map(label => fieldCounts[label]);
+
+                if (fieldChart) {
+                    fieldChart.data.labels = labels;
+                    fieldChart.data.datasets[0].data = data;
+                    fieldChart.update();
+                } else {
+                    fieldChart = new Chart(chartCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: '# of Researchers',
+                                data: data,
+                                backgroundColor: 'rgba(79, 70, 229, 0.6)',
+                                borderColor: 'rgba(79, 70, 229, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            indexAxis: 'y',
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                },
+                                y: {
+                                    ticks: {
+                                        autoSkip: false,
+                                        callback: function(value) {
+                                            const label = this.getLabelForValue(value);
+                                            if (label.length > 16) {
+                                                return label.substring(0, 16) + '...';
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        title: function(tooltipItems) {
+                                            return tooltipItems[0].label;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            function filterAndRender() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedIndustry = industryFilter.value;
+                const selectedField = fieldFilter.value;
+
+                const filteredResearchers = researcherData.filter(r => {
+                    const matchesSearch = r.name.toLowerCase().includes(searchTerm) || r.affiliation.toLowerCase().includes(searchTerm);
+                    const matchesIndustry = selectedIndustry === 'all' || r.industry === selectedIndustry;
+                    const matchesField = selectedField === 'all' || r.field === selectedField;
+                    return matchesSearch && matchesIndustry && matchesField;
+                });
+
+                resultsCount.textContent = `Showing ${filteredResearchers.length} of ${researcherData.length} researchers.`;
+                renderCards(filteredResearchers);
+                updateChart(filteredResearchers);
+            }
+            
+            function handleNav(e) {
+                const targetSection = e.target.dataset.section;
+                if (!targetSection) return;
+
+                navButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.section === targetSection);
+                });
+                
+                sections.forEach(sec => {
+                    sec.classList.toggle('hidden', sec.id !== `${targetSection}-section`);
+                });
+            }
+
+            searchInput.addEventListener('input', filterAndRender);
+            industryFilter.addEventListener('change', filterAndRender);
+            fieldFilter.addEventListener('change', filterAndRender);
+            
+            resetButton.addEventListener('click', () => {
+                searchInput.value = '';
+                industryFilter.value = 'all';
+                fieldFilter.value = 'all';
+                filterAndRender();
+            });
+            
+            navButtons.forEach(btn => btn.addEventListener('click', handleNav));
+
+            populateFilters();
+            filterAndRender();
+        });
+    </script>
+</body>
+</html>
